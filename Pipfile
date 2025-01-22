@@ -10,6 +10,7 @@ elasticsearch = "*"
 numpy = "*"
 python-dotenv = "*"
 openai = "*"
+tiktoken = "*"
 
 [dev-packages]
 
