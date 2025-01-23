@@ -8,10 +8,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 from openai import OpenAI
 import time
-from datetime import datetime
-import tiktoken
-
-MAX_TOKENS_PER_BATCH = 8191
+from embedding import add_embeddings
 
 
 def download_and_load_data():
@@ -36,78 +33,6 @@ def download_and_load_data():
             df = pd.read_pickle(pkl_file)
     return df
 
-def get_embeddings_for_batch(text: list[str], openai_client: OpenAI) -> list[float]:
-    # NOTE: fails on empty strings
-    encoding = tiktoken.get_encoding("cl100k_base")
-    try:
-        start_time = time.time()
-        response = openai_client.embeddings.create(
-            model="text-embedding-3-small",
-            input=[encoding.encode(line) for line in text]
-        )
-        duration = time.time() - start_time
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] Embedding API call took {duration:.2f}s")
-        return [elt.embedding for elt in response.data]
-    except Exception as e:
-        print(f"Error getting embedding for text: {text}")
-        print(e)
-        return []
-
-_last_progress_time = None
-def _print_progress(start_time, processed_count, total_routes):
-    global _last_progress_time
-    current_time = time.time()
-
-    # Print progress every 10 seconds or every 100 routes
-    if _last_progress_time is None or current_time - _last_progress_time > 10 or (processed_count % 500 == 0 and processed_count > 0):
-        elapsed_time = current_time - start_time
-        routes_per_second = processed_count / elapsed_time
-        estimated_remaining = (total_routes - processed_count) / routes_per_second if routes_per_second > 0 else 0
-        
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] "
-                f"Processed {processed_count}/{total_routes} routes "
-                f"({processed_count/total_routes*100:.1f}%) - "
-                f"Rate: {routes_per_second:.1f} routes/s - "
-                f"Est. remaining: {estimated_remaining/60:.1f} minutes")
-        _last_progress_time = current_time
-
-def num_tokens_from_string(string: str) -> int:
-    """Returns the number of tokens in a text string."""
-    encoding = tiktoken.get_encoding("cl100k_base")
-    num_tokens = len(encoding.encode(string))
-    return num_tokens
-
-def add_embeddings(documents: dict, openai_client: OpenAI):
-    batch_start_idx = 0
-    batch_end_idx = 0 # exclusive
-    batch_token_size = 0
-    start_time = time.time()
-    document_ids = [document_id for document_id, document in documents.items() if document["description"] != ""]
-    while batch_start_idx < len(document_ids):
-        _print_progress(start_time, batch_start_idx, len(document_ids))
-        if batch_end_idx < len(document_ids):
-            next_doc = documents[document_ids[batch_end_idx]]
-            next_doc_tokens = num_tokens_from_string(next_doc["description"])
-            
-            while next_doc_tokens >= MAX_TOKENS_PER_BATCH:
-                # case where one doc alone has too many tokens -> need to truncate description
-                next_doc["description"] = next_doc["description"][0:len(next_doc["description"]) // 2]
-                next_doc_tokens = num_tokens_from_string(next_doc["description"])
-
-            if batch_token_size + next_doc_tokens < MAX_TOKENS_PER_BATCH/2:
-                # existing batch has room, keep adding docs to it
-                batch_token_size += next_doc_tokens
-                batch_end_idx += 1
-                continue
-        
-        # process the batch
-        print(f"Getting embeddings for batch of length {batch_end_idx - batch_start_idx}")
-        embeddings = get_embeddings_for_batch([documents[doc_id]["description"] for doc_id in document_ids[batch_start_idx:batch_end_idx]], openai_client)
-        for doc_id, embedding in zip(document_ids[batch_start_idx:batch_end_idx], embeddings):
-            documents[doc_id]['description_vector'] = embedding
-        batch_start_idx = batch_end_idx
-        batch_token_size = next_doc_tokens
-        batch_end_idx += 1
 
 def transform_data(df):
     load_dotenv()
@@ -129,9 +54,7 @@ def transform_data(df):
     
     print(f"Starting to transform {total_routes} routes...")
     
-    for idx, row in df.iterrows():
-        _print_progress(start_time=start_time, processed_count=idx, total_routes=total_routes)       
-        
+    for _, row in df.iterrows():
         description = "\n".join(row["description"] or [])
         doc = {
             "route_name": row["route_name"],
@@ -150,7 +73,6 @@ def transform_data(df):
             documents.append(doc)
     
     print("Adding embeddings for all routes...")
-    
     add_embeddings({document['route_id']: document for document in documents}, openai_client)
 
     total_time = time.time() - start_time
