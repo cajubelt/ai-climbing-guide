@@ -99,20 +99,20 @@ def load_to_elasticsearch(documents):
     mappings = {
         "properties": {
             "route_name": {"type": "text"},
+            "sector_name": {"type": "text"},
+            "description": {"type": "text"},
+            "location": {"type": "geo_point"},
+            "rating": {"type": "float"},
+            "style": {"type": "keyword"},
+            "grade": {"type": "keyword"},
             "route_id": {"type": "keyword"},
             "sector_id": {"type": "keyword"},
-            "grade": {"type": "keyword"},
-            "sector_name": {"type": "text"},
-            "location": {"type": "geo_point"},
-            "style": {"type": "keyword"},
-            "description": {"type": "text"},
             "description_vector": {
                 "type": "dense_vector",
                 "dims": 1536,
                 "index": True,
                 "similarity": "cosine"
             },
-            "rating": {"type": "float"}
         }
     }
     
