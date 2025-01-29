@@ -11,3 +11,6 @@ ENV/
 
 # Data directory
 data/
+
+# Streamlit
+.streamlit
