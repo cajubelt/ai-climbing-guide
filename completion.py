@@ -1,5 +1,7 @@
 import json
 
+from climbing_data_client import ClimbingDataClient
+
 
 SYSTEM_PROMPT = """
 You are an AI climbing guide. Your task is to help people find information about climbing routes and areas, and plan which routes and areas to visit with their party. Don't offer general safety and climbing tips unless the user directly asks for it.
@@ -39,26 +41,21 @@ TOOLS = [{
     }
 }]
 
-def search_climbs(route_name):
-    # TODO search ES index
+def search_climbs(climbing_data_client, route_name):
+    # TODO refactor this module to use an OpenAIClient that implements an abstract class LLMClient instead of hardcoding OpenAI specifics into the chat interface directly. The abstract class can still accept a ClimbingDataClient as an argument for completions.
     # TODO search over more fields than just the route name
-    return {
-        "route_name": route_name,
-        "sector_name": "dummy sector",
-        "description": "dummy description",
-        "location": {"lat": 0, "lon": 0},
-        "rating": 0,
-        "style": "dummy style",
-        "grade": "dummy grade"
-    }
+    es_response = climbing_data_client.search_climbs(route_name)
+    # TODO reshape the response to something with less kruft
+    print(f"es_response: {es_response}")
+    return es_response
 
-def call_function(function_name, **kwargs):
+def call_function(function_name, climbing_data_client, **kwargs):
     if function_name == "search_climbs":
-        return search_climbs(**kwargs)
+        return search_climbs(climbing_data_client, **kwargs)
     else:
         raise Exception("Unknown function name: " + function_name)
 
-def get_completions_stream(openai_client, model, messages):
+def get_completions_stream(openai_client, climbing_data_client: ClimbingDataClient, model: str, messages):
     rag_completion = openai_client.chat.completions.create(
         model=model,
         messages=[
@@ -77,7 +74,7 @@ def get_completions_stream(openai_client, model, messages):
         name = tool_call.function.name
         args = json.loads(tool_call.function.arguments)
 
-        result = call_function(name, **args)
+        result = call_function(name, climbing_data_client, **args)
         after_rag_messages.append({
             "role": "tool",
             "tool_call_id": tool_call.id,

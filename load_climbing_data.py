@@ -1,3 +1,4 @@
+from constants import ELASTICSEARCH_INDEX_NAME
 import pandas as pd
 import requests
 from elasticsearch import Elasticsearch, helpers
@@ -86,7 +87,7 @@ def load_to_elasticsearch(documents):
     
     es_url = os.getenv('ELASTICSEARCH_URL')
     es_api_key = os.getenv('ELASTICSEARCH_API_KEY')
-    index_name = os.getenv('ELASTICSEARCH_INDEX_NAME', 'openbeta')
+    index_name = ELASTICSEARCH_INDEX_NAME
     
     if es_api_key:
         es = Elasticsearch(
