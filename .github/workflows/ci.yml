@@ -36,4 +36,4 @@ jobs:
     
     - name: Run tests
       run: |
-        pipenv run pytest -v
+        PYTHONPATH=./src pipenv run pytest -v
