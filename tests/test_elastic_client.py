@@ -69,7 +69,15 @@ def test_search_climbs_success(mock_elastic_client, mock_es_response):
     
     mock_elastic_client.es.search.assert_called_once_with(
         index=ELASTICSEARCH_INDEX_NAME,
-        query={"fuzzy": {"route_name": "Transgression"}}
+        query={
+            "match": {
+                "route_name": {
+                    "query": "Transgression",
+                    "fuzziness": "AUTO",
+                    "operator": "and"
+                }
+            }
+        }
     )
     
     assert result["total"] == 2
@@ -99,3 +107,23 @@ def test_search_climbs_index_not_exists(mock_elastic_client):
     
     assert str(exc_info.value) == f"Index {ELASTICSEARCH_INDEX_NAME} does not exist"
     mock_elastic_client.es.search.assert_not_called()
+
+def test_search_climbs_multi_word(mock_elastic_client, mock_es_response):
+    mock_elastic_client.es.search.return_value = mock_es_response
+    
+    result = mock_elastic_client.search_climbs("Red Rock")
+    
+    mock_elastic_client.es.search.assert_called_once_with(
+        index=ELASTICSEARCH_INDEX_NAME,
+        query={
+            "match": {
+                "route_name": {
+                    "query": "Red Rock",
+                    "fuzziness": "AUTO",
+                    "operator": "and"
+                }
+            }
+        }
+    )
+    
+    assert result["total"] == 2

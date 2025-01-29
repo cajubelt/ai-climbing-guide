@@ -12,8 +12,12 @@ class ElasticClient(ClimbingDataClient):
             raise Exception(f"Index {ELASTICSEARCH_INDEX_NAME} does not exist")
         
         response = self.es.search(index=ELASTICSEARCH_INDEX_NAME, query={
-            "fuzzy": {
-                "route_name": route_name
+            "match": {
+                "route_name": {
+                    "query": route_name,
+                    "fuzziness": "AUTO",
+                    "operator": "and"
+                }
             }
         })
         
