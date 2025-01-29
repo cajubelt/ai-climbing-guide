@@ -11,6 +11,7 @@ numpy = "*"
 python-dotenv = "*"
 openai = "*"
 tiktoken = "*"
+streamlit = "*"
 
 [dev-packages]
 
