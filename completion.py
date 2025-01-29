@@ -44,10 +44,7 @@ TOOLS = [{
 def search_climbs(climbing_data_client, route_name):
     # TODO refactor this module to use an OpenAIClient that implements an abstract class LLMClient instead of hardcoding OpenAI specifics into the chat interface directly. The abstract class can still accept a ClimbingDataClient as an argument for completions.
     # TODO search over more fields than just the route name
-    es_response = climbing_data_client.search_climbs(route_name)
-    # TODO reshape the response to something with less kruft
-    print(f"es_response: {es_response}")
-    return es_response
+    return climbing_data_client.search_climbs(route_name)
 
 def call_function(function_name, climbing_data_client, **kwargs):
     if function_name == "search_climbs":
