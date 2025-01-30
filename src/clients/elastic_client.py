@@ -1,4 +1,4 @@
-from climbing_data_client import ClimbingDataClient
+from clients.climbing_data_client import ClimbingDataClient
 from constants import ELASTICSEARCH_INDEX_NAME
 from elasticsearch import Elasticsearch
 

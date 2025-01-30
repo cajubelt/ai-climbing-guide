@@ -9,11 +9,11 @@ from dotenv import load_dotenv
 from pathlib import Path
 from openai import OpenAI
 import time
-from embedding import add_embeddings
+from core.embedding import add_embeddings
 
 
 def download_and_load_data():
-    data_dir = Path("data")
+    data_dir = Path("../data")
     data_dir.mkdir(exist_ok=True)
     
     data_file = data_dir / "climbing_data.pkl.zip"

@@ -1,7 +1,7 @@
 from completion import get_completions_stream
 from openai import OpenAI
 import streamlit as st
-from elastic_client import ElasticClient
+from clients.elastic_client import ElasticClient
 
 st.title("AI Climbing Guide")
 

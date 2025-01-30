@@ -53,7 +53,7 @@ def num_tokens_from_string(string: str) -> int:
 def add_embeddings(documents: dict, openai_client: OpenAI):
     print('Loading embedding cache')
     embedding_cache = load_embedding_cache()
-    print(f'Loaded embedding cache, found {len(embe )} cached embeddings')
+    print(f'Loaded embedding cache, found {len(embedding_cache)} cached embeddings')
     batch_token_size = 0
     start_time = time.time()
     batch = []
@@ -92,7 +92,7 @@ def add_embeddings(documents: dict, openai_client: OpenAI):
 
 
 def _get_embedding_cache_file_path():
-    data_dir = Path("data")
+    data_dir = Path("../../data")
     data_dir.mkdir(exist_ok=True)
     return data_dir / "embedding_cache.json"
 

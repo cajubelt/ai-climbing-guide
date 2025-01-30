@@ -1,6 +1,6 @@
 import json
 
-from climbing_data_client import ClimbingDataClient
+from clients.climbing_data_client import ClimbingDataClient
 
 
 SYSTEM_PROMPT = """

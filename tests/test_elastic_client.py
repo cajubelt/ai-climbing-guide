@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock, patch
-from elastic_client import ElasticClient, ELASTICSEARCH_INDEX_NAME
+from clients.elastic_client import ElasticClient, ELASTICSEARCH_INDEX_NAME
 
 @pytest.fixture
 def mock_es_response():
