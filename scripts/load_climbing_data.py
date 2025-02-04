@@ -34,19 +34,26 @@ def download_and_load_data():
             df = pd.read_pickle(pkl_file)
     return df
 
+def extract_coordinates(location):
+    try:
+        if pd.isna(location).any():  
+            print("Location contains NaN values:", location)
+            return None
+        if not hasattr(location, '__len__') or len(location) != 2:
+            print("Expected location to be a sequence of length 2, got", location)
+            return None
+        lon, lat = float(location[0]), float(location[1])  
+        if not (np.isfinite(lon) and np.isfinite(lat)):
+            print("Expected coordinates to be finite numbers, got", lon, lat)
+            return None
+        return {"lat": lat, "lon": lon}
+    except Exception as e:
+        print("Exception extracting coordinates:", e)
+        return None
 
 def transform_data(df):
     load_dotenv()
     openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-    
-    def extract_coordinates(location_str):
-        try:
-            if pd.isna(location_str):
-                return None
-            lat, lon = map(float, location_str.split(','))
-            return {"lat": lat, "lon": lon}
-        except:
-            return None
 
     documents = []
     total_routes = len(df)
