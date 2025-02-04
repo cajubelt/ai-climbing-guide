@@ -32,6 +32,8 @@ def mock_es_response():
                         "grade": "5.10b",
                         "style": "trad",
                         "description": "Classic crack climb",
+                        "rating": 3.5,
+                        "location": {"lat": 36.131, "lon": -115.424}
                     }
                 },
                 {
@@ -46,6 +48,8 @@ def mock_es_response():
                         "grade": "5.11a",
                         "style": "sport",
                         "description": "Steep face climbing",
+                        "rating": 4.0,
+                        "location": {"lat": 36.132, "lon": -115.425}
                     }
                 }
             ]
@@ -70,12 +74,16 @@ def test_search_climbs_success(mock_elastic_client, mock_es_response):
     mock_elastic_client.es.search.assert_called_once_with(
         index=ELASTICSEARCH_INDEX_NAME,
         query={
-            "match": {
-                "route_name": {
-                    "query": "Transgression",
-                    "fuzziness": "AUTO",
-                    "operator": "and"
-                }
+            "bool": {
+                "must": [{
+                    "match": {
+                        "route_name": {
+                            "query": "Transgression",
+                            "fuzziness": "AUTO",
+                            "operator": "and"
+                        }
+                    }
+                }]
             }
         }
     )
@@ -90,6 +98,8 @@ def test_search_climbs_success(mock_elastic_client, mock_es_response):
     assert first_route["grade"] == "5.10b"
     assert first_route["style"] == "trad"
     assert first_route["score"] == 12.844319
+    assert first_route["rating"] == 3.5
+    assert first_route["location"] == {"lat": 36.131, "lon": -115.424}
     
     second_route = result["routes"][1]
     assert second_route["route_name"] == "Progression"
@@ -98,6 +108,8 @@ def test_search_climbs_success(mock_elastic_client, mock_es_response):
     assert second_route["grade"] == "5.11a"
     assert second_route["style"] == "sport"
     assert second_route["score"] == 10.123456
+    assert second_route["rating"] == 4.0
+    assert second_route["location"] == {"lat": 36.132, "lon": -115.425}
 
 def test_search_climbs_index_not_exists(mock_elastic_client):
     mock_elastic_client.es.indices.exists.return_value = False
@@ -116,12 +128,16 @@ def test_search_climbs_multi_word(mock_elastic_client, mock_es_response):
     mock_elastic_client.es.search.assert_called_once_with(
         index=ELASTICSEARCH_INDEX_NAME,
         query={
-            "match": {
-                "route_name": {
-                    "query": "Red Rock",
-                    "fuzziness": "AUTO",
-                    "operator": "and"
-                }
+            "bool": {
+                "must": [{
+                    "match": {
+                        "route_name": {
+                            "query": "Red Rock",
+                            "fuzziness": "AUTO",
+                            "operator": "and"
+                        }
+                    }
+                }]
             }
         }
     )
