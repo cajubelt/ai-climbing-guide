@@ -13,7 +13,7 @@ from core.embedding import add_embeddings
 
 
 def download_and_load_data():
-    data_dir = Path("../data")
+    data_dir = Path(os.getenv("DATA_DIR", "data"))
     data_dir.mkdir(exist_ok=True)
     
     data_file = data_dir / "climbing_data.pkl.zip"
@@ -52,7 +52,6 @@ def extract_coordinates(location):
         return None
 
 def transform_data(df):
-    load_dotenv()
     openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
     documents = []
@@ -140,6 +139,8 @@ def load_to_elasticsearch(documents):
     helpers.bulk(es, actions)
 
 def main():
+    load_dotenv()
+
     print("Downloading and loading data...")
     df = download_and_load_data()
     
