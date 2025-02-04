@@ -4,6 +4,7 @@ from openai import OpenAI
 import json
 from datetime import datetime
 from pathlib import Path
+import os
 
 MAX_TOKENS_PER_BATCH = 8191
 
@@ -92,7 +93,7 @@ def add_embeddings(documents: dict, openai_client: OpenAI):
 
 
 def _get_embedding_cache_file_path():
-    data_dir = Path("../../data")
+    data_dir = Path(os.getenv("DATA_DIR", "../../data"))
     data_dir.mkdir(exist_ok=True)
     return data_dir / "embedding_cache.json"
 
