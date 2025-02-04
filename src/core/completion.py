@@ -105,25 +105,29 @@ def get_completions_stream(
         messages=[{"role": "system", "content": SYSTEM_PROMPT}, *messages],
         tools=TOOLS,
     )
-    print("tool calls", rag_completion.choices[0].message.tool_calls)
-    after_rag_messages = [
+    tool_calls = rag_completion.choices[0].message.tool_calls
+    print("tool calls", tool_calls)
+    updated_messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         *messages,
         rag_completion.choices[0].message,
     ]
-    for tool_call in rag_completion.choices[0].message.tool_calls:
-        name = tool_call.function.name
-        args = json.loads(tool_call.function.arguments)
+    if tool_calls:
+        for tool_call in tool_calls:
+            name = tool_call.function.name
+            args = json.loads(tool_call.function.arguments)
 
-        result = call_function(name, climbing_data_client, **args)
-        after_rag_messages.append(
-            {
-                "role": "tool",
-                "tool_call_id": tool_call.id,
-                "content": json.dumps(result),
-            }
-        )
-    print(f"after rag messages: {after_rag_messages}")
+            result = call_function(name, climbing_data_client, **args)
+            updated_messages.append(
+                {
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "content": json.dumps(result),
+                }
+            )
+        print(f"after rag messages: {updated_messages}")
+    else:
+        print(f"no tools called")
     return openai_client.chat.completions.create(
-        model=model, messages=after_rag_messages, stream=True
+        model=model, messages=updated_messages, stream=True
     )
