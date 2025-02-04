@@ -92,7 +92,7 @@ def transform_data(df):
 def load_to_elasticsearch(documents):
     load_dotenv()
     
-    es_url = os.getenv('ELASTICSEARCH_URL')
+    es_url = os.getenv('ELASTICSEARCH_NODE_URL')
     es_api_key = os.getenv('ELASTICSEARCH_API_KEY')
     index_name = ELASTICSEARCH_INDEX_NAME
     
