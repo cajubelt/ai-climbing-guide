@@ -13,6 +13,11 @@ When I tried this prompt with vanilla ChatGPT 4o, it gives a really great answer
 
 ## Implementation Status
 
+I've built out some but not all of the functionality I'd hope for from an AI climbing guide. Here are some screenshots demonstrating the present-day capabilities of the app:
+<img width="757" alt="Screenshot 2025-02-04 at 5 16 41 PM" src="https://github.com/user-attachments/assets/9bf292c7-6634-4ffc-ac1b-ac3e8aae4b35" />
+<img width="727" alt="Screenshot 2025-02-04 at 5 16 28 PM" src="https://github.com/user-attachments/assets/42e44574-171d-438f-8f51-20a691309920" />
+<img width="761" alt="Screenshot 2025-02-04 at 4 55 25 PM" src="https://github.com/user-attachments/assets/f7ff2a5a-3359-4b09-a796-f821106caf0e" />
+
 - [x] find or develop a sizeable open source climbing database
 - [x] write a script that loads climbing data into a database
 - [x] write a search API that queries the db with basic searches
