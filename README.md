@@ -1,5 +1,30 @@
 # AI Climbing Guide
 
+## Motivation
+
+When I go on climbing trips with friends, there is often a fairly intensive optimization problem the group needs to solve to make sure everyone has fun-- finding co-located climbs that meet everyone's ability levels and stylistic preferences. Even for small groups of 2 or 3, this can take hours, and eats into time most people would prefer to spend hanging out with their friends, rather than poring through guidebooks.
+
+With this project my goal is to develop a RAG-enabled AI agent that can answer the following prompt (or similar ones) well:
+```
+I’m going climbing with my friends Eli and Kristi. Eli climbs around v7 and prefers crimps. He also prefers a safe landing zone and no highballs. Kristi climbs around v6. One climb she really loved was The Pearl. I climb around v9, and I enjoy a range of styles, just not pockets. We’re going to Tahoe for the weekend and we’ll be staying in Truckee. Can you recommend some bouldering spots for us where we’ll all have a good time?
+```
+
+When I tried this prompt with vanilla ChatGPT 4o, it gives a really great answer, except when you look up the climbs it suggest-- which either don't exist, or are hundreds of miles away. Not very helpful!
+
+## Implementation Status
+
+- [x] find or develop a sizeable open source climbing database
+- [x] write a script that loads climbing data into a database
+- [x] write a search API that queries the db with basic searches
+- [x] build a basic chat UI
+- [x] leverage OpenAI function calling API to enable AI-driven climbing data db lookups
+- [ ] power up the AI enough to get a great answer for the prompt from [Motivation](#motivation) (or a similar one with areas included in the climb db). This may require [CoRAG](https://arxiv.org/abs/2501.14342) or a more powerful search API, TBD
+- [ ] account creation and auth via login with Google
+- [ ] limit messages for free tier users
+- [ ] deploy!
+
+## Contents
+
 This repo consists of:
 - a script for loading OpenBeta climbing data into an ElasticSearch index
 - a Streamlit interface for talking to an AI Climbing Guide
@@ -22,6 +47,7 @@ You can now run the script with `PYTHONPATH=./src pipenv run python ./scripts/lo
 ### StreamLit Interface
 
 1. Populate an ElasticSearch index as described above
+1. Fill in the same secrets as in the `.env` file in `.streamlit/secrets.toml`
 1. Run `PYTHONPATH=./src pipenv run python -m streamlit run ./src/core/chat_interface.py`
 
 A URL should print to the console for your AI Climbing Guide app.
