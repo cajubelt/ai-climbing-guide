@@ -1,4 +1,5 @@
 import json
+import copy
 
 from clients.climbing_data_client import ClimbingDataClient
 from constants import ClimbStyle
@@ -46,7 +47,6 @@ TOOLS = [
                             "lat": {
                                 "type": "number",
                                 "description": "Latitude of the center of a search region",
-                                
                             },
                             "lon": {
                                 "type": "number",
@@ -75,7 +75,7 @@ TOOLS = [
                             "type": "string",
                         },
                         "description": "A list of climbing grades to search for",
-                    }
+                    },
                 },
                 "required": [],
                 "additionalProperties": False,
@@ -100,18 +100,18 @@ def call_function(function_name, climbing_data_client, **kwargs):
 def get_completions_stream(
     openai_client, climbing_data_client: ClimbingDataClient, model: str, messages
 ):
+    updated_messages = copy.deepcopy(messages)
+    if len(updated_messages) == 0 or updated_messages[0]["role"] != "system":
+        updated_messages.insert(0, {"role": "system", "content": SYSTEM_PROMPT})
     rag_completion = openai_client.chat.completions.create(
         model=model,
-        messages=[{"role": "system", "content": SYSTEM_PROMPT}, *messages],
+        messages=updated_messages,
         tools=TOOLS,
     )
     tool_calls = rag_completion.choices[0].message.tool_calls
     print("tool calls", tool_calls)
-    updated_messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        *messages,
-        rag_completion.choices[0].message,
-    ]
+    updated_messages.append(rag_completion.choices[0].message)
+
     if tool_calls:
         for tool_call in tool_calls:
             name = tool_call.function.name
